@@ -13,6 +13,12 @@
         #tbody tr {
             cursor: move;
         }
+
+        #rename {
+            -webkit-box-sizing: border-box;
+            padding: 9px;
+            border: 1px solid #e1e1e1;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +95,16 @@
     document.getElementById('download').addEventListener('click', function (e) {
         e.preventDefault();
         download(fileListRename(document.getElementById('rename').value));
+    });
+
+    document.getElementById('rename').addEventListener('keyup', function (e) {
+        if (e.key == 13) {
+            download(fileListRename(document.getElementById('rename').value));
+        } else if (e.keyIdentifier == 13) {
+            download(fileListRename(document.getElementById('rename').value));
+        } else if (e.keyCode == 13) {
+            download(fileListRename(document.getElementById('rename').value));
+        }
     });
 
     function fileListRename(sourceName) {
