@@ -4,30 +4,49 @@
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <script type="text/javascript" src="./js/JSZip/jszip.min.js"></script>
-    <script type="text/javascript" src="./js/JSZipUtils/jszip-utils.min.js"></script>
-    <script type="text/javascript" src="./js/FileSaver/FileSaver.js"></script>
+    <title>test</title>
     <style>
-        #table {
+        #tbody td {
             border: 1px solid #ccc;
         }
 
-        #table td {
-            border: 1px solid #ccc;
+        #tbody tr {
+            cursor: move;
         }
     </style>
 </head>
-
 <body>
-
-<input type="text" value="" name="rename" id="rename" style="width: 100%" placeholder="新的文件名, #为序号替换符. 一般使用##来替换12集的字幕文件">
+<input type="text" value="" name="rename" id="rename" style="width: 100%"
+       placeholder="新的文件名, #为序号替换符. 一般使用##来替换12集的字幕文件">
 <br>
 <button type="button" id="download">download</button>
-
-<table id="table">
+<br>
+<input type="file"
+       id="filesInput"
+       multiple="multiple"
+       accept="*"/>
+<table>
+    <tbody id="tbody">
+    </tbody>
 </table>
 
+<script async defer src="./js/JSZip/jszip.min.js"></script>
+<script async defer src="./js/JSZipUtils/jszip-utils.min.js"></script>
+<script async defer src="./js/FileSaver/FileSaver.js"></script>
+<script src="./js/Sortable/Sortable.min.js"></script>
+
 <script>
+    Sortable.create(document.getElementById('tbody'), {
+        draggable: 'tr',
+        animation: 100,
+        onEnd: function (e) {
+            let sourceEl = fileList.splice(e.newIndex, 1, fileList[e.oldIndex]);
+            fileList.splice(e.oldIndex, 1);
+            fileList.splice(e.oldIndex > e.newIndex ? e.newIndex + 1 : e.newIndex - 1, 0, sourceEl[0]);
+            refreshTable();
+        },
+    });
+
     const hoverClassName = 'hover';
     const dropZone = document.body;
     let fileList = [];
@@ -47,16 +66,29 @@
     dropZone.addEventListener("drop", function (e) {
         e.preventDefault();
         dropZone.classList.remove(hoverClassName);
-
+        if (!e.dataTransfer.files.length) {
+            return;
+        }
         Array.from(e.dataTransfer.files).forEach(function (file) {
             fileList.push(file)
         });
 
         refreshTable();
     });
+    document.getElementById('filesInput').addEventListener('change', function (e) {
+        e.preventDefault();
+
+        Array.from(e.target.files || e.dataTransfer.files).forEach(function (file) {
+            fileList.push(file)
+        });
+
+        event.target.value = '';
+
+        refreshTable();
+    });
     document.getElementById('download').addEventListener('click', function (e) {
         e.preventDefault();
-        download(fileListRename(document.getElementById('rename').value))
+        download(fileListRename(document.getElementById('rename').value));
     });
 
     function fileListRename(sourceName) {
@@ -82,7 +114,6 @@
     }
 
     function download(files) {
-        console.log(files);
         let zip = new JSZip();
         for (let i in files) {
             if (files.hasOwnProperty(i)) {
@@ -96,18 +127,23 @@
         });
     }
 
+    let timer132748238424 = null;
+
     function refreshTable() {
-        let table = document.getElementById('table');
+        clearTimeout(timer132748238424);
+        timer132748238424 = setTimeout(function () {
+            let tBody = document.getElementById('tbody');
+            tBody.innerHTML = "";
 
-        fileList.forEach(function (file) {
-            let tr = document.createElement("tr");
-            let td = document.createElement("td");
-            td.textContent = file.name;
-            tr.appendChild(td);
-            table.appendChild(tr);
-        });
+            fileList.forEach(function (file) {
+                let tr = document.createElement("tr");
+                let td = document.createElement("td");
+                td.textContent = file.name;
+                tr.appendChild(td);
+                tBody.appendChild(tr);
+            });
+        }, 100);
     }
-
 </script>
 </body>
 </html>
