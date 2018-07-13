@@ -1,0 +1,113 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script type="text/javascript" src="./js/JSZip/jszip.min.js"></script>
+    <script type="text/javascript" src="./js/JSZipUtils/jszip-utils.min.js"></script>
+    <script type="text/javascript" src="./js/FileSaver/FileSaver.js"></script>
+    <style>
+        #table {
+            border: 1px solid #ccc;
+        }
+
+        #table td {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+<input type="text" value="" name="rename" id="rename" style="width: 100%" placeholder="新的文件名, #为序号替换符. 一般使用##来替换12集的字幕文件">
+<br>
+<button type="button" id="download">download</button>
+
+<table id="table">
+</table>
+
+<script>
+    const hoverClassName = 'hover';
+    const dropZone = document.body;
+    let fileList = [];
+
+    dropZone.addEventListener("dragenter", function (e) {
+        e.preventDefault();
+        dropZone.classList.add(hoverClassName);
+    });
+    dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        dropZone.classList.add(hoverClassName);
+    });
+    dropZone.addEventListener("dragleave", function (e) {
+        e.preventDefault();
+        dropZone.classList.remove(hoverClassName);
+    });
+    dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropZone.classList.remove(hoverClassName);
+
+        Array.from(e.dataTransfer.files).forEach(function (file) {
+            fileList.push(file)
+        });
+
+        refreshTable();
+    });
+    document.getElementById('download').addEventListener('click', function (e) {
+        e.preventDefault();
+        download(fileListRename(document.getElementById('rename').value))
+    });
+
+    function fileListRename(sourceName) {
+        let jsonFileList = {};
+        let match = sourceName.match(/#+/);
+        let fileName = sourceName;
+
+        fileList.forEach(function (file, index) {
+            if (match) {
+                let len = match[0].length;
+                let i = match['index'];
+                let strNumber = '' + (index + 1);
+                let pad = strNumber;
+                for (let ii = 0; ii < len - strNumber.length; ii++) {
+                    pad = '0' + pad;
+                }
+
+                fileName = sourceName.substring(0, i) + pad + sourceName.substring(i + len);
+            }
+            jsonFileList[fileName] = file
+        });
+        return jsonFileList;
+    }
+
+    function download(files) {
+        console.log(files);
+        let zip = new JSZip();
+        for (let i in files) {
+            if (files.hasOwnProperty(i)) {
+                zip.file(i, files[i])
+            }
+        }
+        zip.generateAsync({type: "blob"}).then(function (blob) { // 1) generate the zip file
+            saveAs(blob, "hello.zip");
+        }, function (err) {
+            alert(err);
+        });
+    }
+
+    function refreshTable() {
+        let table = document.getElementById('table');
+
+        fileList.forEach(function (file) {
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.textContent = file.name;
+            tr.appendChild(td);
+            table.appendChild(tr);
+        });
+    }
+
+</script>
+</body>
+</html>
