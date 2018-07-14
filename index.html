@@ -150,6 +150,12 @@
     const dropZone = document.body;
     let fileList = [];
 
+    //https://github.com/RubaXa/Sortable/issues/985
+    document.body.ondrop = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
     dropZone.addEventListener("dragenter", function (e) {
         e.preventDefault();
         dropZone.classList.add(hoverClassName);
