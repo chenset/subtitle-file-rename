@@ -70,8 +70,8 @@
         .selector-wrap {
             position: relative;
             margin: 40px 0 20px;
-            height: 100px;
-            border: 1px dashed #ccc;
+            height: 500px;
+            border: 2px dashed #ccc;
             border-radius: 5px;
         }
 
@@ -97,8 +97,7 @@
         }
     </style>
 </head>
-<body>
-
+<body id="drop-zone">
 <div class="container">
 
     <div class="rename-wrap">
@@ -147,7 +146,7 @@
     });
 
     const hoverClassName = 'hover';
-    const dropZone = document.body;
+    const dropZone = document.getElementById('drop-zone');
     let fileList = [];
 
     //https://github.com/RubaXa/Sortable/issues/985
@@ -178,6 +177,7 @@
             fileList.push(file)
         });
 
+        refreshDropZone();
         refreshTable();
     });
     document.getElementById('filesInput').addEventListener('change', function (e) {
@@ -189,6 +189,7 @@
 
         e.target.value = '';
 
+        refreshDropZone();
         refreshTable();
     });
     document.getElementById('download').addEventListener('click', function (e) {
@@ -243,6 +244,16 @@
     }
 
     let timer132748238424 = null;
+
+    function refreshDropZone() {
+        Array.from(document.getElementsByClassName('selector-wrap')).forEach(function (dom) {
+            if (fileList.length) {
+                dom.style.height = '100px';
+            } else {
+                dom.style.height = '500px';
+            }
+        });
+    }
 
     function refreshTable() {
         clearTimeout(timer132748238424);
