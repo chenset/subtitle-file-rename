@@ -46,8 +46,8 @@
         }
 
         .rename-wrap {
-            margin-top: 100px;
-            position: relative
+            margin: 40px 0;
+            position: relative;
         }
 
         #rename {
@@ -95,11 +95,21 @@
             width: 100%;
             height: 100%;
         }
+
+        .td-size {
+            text-align: right;
+        }
     </style>
 </head>
 <body id="drop-zone">
 <div class="container">
-
+    <div class="selector-wrap">
+        <p class="selector-text">拖拽文件或者点击此处选择文件</p>
+        <input type="file"
+               id="filesInput"
+               multiple="multiple"
+               accept="*"/>
+    </div>
     <div class="rename-wrap">
         <input type="text" value="" name="rename" id="rename"
                placeholder="新的文件名, #为序号替换符. 一般使用##来替换12集的字幕文件">
@@ -107,21 +117,10 @@
             回车键下载
         </button>
     </div>
-
-    <div class="list-wrap">
-
-        <div class="selector-wrap">
-            <p class="selector-text">拖拽文件或者点击此处选择文件</p>
-            <input type="file"
-                   id="filesInput"
-                   multiple="multiple"
-                   accept="*"/>
-        </div>
-        <table>
-            <tbody id="tbody">
-            </tbody>
-        </table>
-    </div>
+    <table>
+        <tbody id="tbody">
+        </tbody>
+    </table>
 </div>
 
 <footer style="position: fixed;bottom:20px;left:0;width:100%;text-align: center">
@@ -237,7 +236,7 @@
             }
         }
         zip.generateAsync({type: "blob"}).then(function (blob) { // 1) generate the zip file
-            saveAs(blob, "hello.zip");
+            saveAs(blob, "str.flysay.com.zip");
         }, function (err) {
             alert(err);
         });
@@ -263,12 +262,26 @@
 
             fileList.forEach(function (file) {
                 let tr = document.createElement("tr");
-                let td = document.createElement("td");
-                td.textContent = file.name;
-                tr.appendChild(td);
+                let td1 = document.createElement("td");
+                td1.textContent = file.name;
+                tr.appendChild(td1);
+                let td2 = document.createElement("td");
+                td2.textContent = fileSizeH(file.size);
+                td2.className = 'td-size';
+                tr.appendChild(td2);
                 tBody.appendChild(tr);
             });
         }, 100);
+    }
+
+    function fileSizeH(size) {
+        let kbUnit = size / 1024;
+        var unit = 'KB';
+        if (kbUnit > 1024) {
+            kbUnit /= 1024;
+            unit = 'MB';
+        }
+        return parseFloat(kbUnit).toFixed(2) + unit;
     }
 </script>
 </body>
